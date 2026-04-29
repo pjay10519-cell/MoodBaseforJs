@@ -1,0 +1,310 @@
+/* ── 1. RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+   
+  /* Hide the default cursor so our custom dot looks clean */
+  body {
+    cursor: none;
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    padding: 20px;
+  }
+   
+   
+  /* ── 2. CUSTOM CURSOR ────────────────────────────────────── */
+  /* A small dot that follows the mouse (moved by JS) */
+  #moodCursor {
+    position: fixed;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    pointer-events: none;      /* doesn't block clicks */
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: background 0.4s ease, width 0.2s ease, height 0.2s ease;
+    background: rgba(80, 80, 180, 0.4);
+    mix-blend-mode: multiply;  /* blends nicely over any colour */
+  }
+   
+  /* Gets bigger when hovering a button (class added by JS) */
+  #moodCursor.big {
+    width: 34px;
+    height: 34px;
+    opacity: 0.5;
+  }
+   
+   
+  /* ── 3. MAIN APP WRAPPER ─────────────────────────────────── */
+  #moodApp {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    min-height: 560px;
+    border-radius: 28px;
+    overflow: hidden;
+   
+    /* Default gradient before any mood is chosen */
+    background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+   
+    /* Smooth transition when mood changes */
+    transition: background 1s ease;
+  }
+   
+  /* Mood-specific backgrounds — activated by data-mood attribute */
+  #moodApp[data-mood="happy"] { background: linear-gradient(135deg, #ffe57a, #ffb347); }
+  #moodApp[data-mood="sad"]   { background: linear-gradient(135deg, #aac8e8, #6591bd); }
+  #moodApp[data-mood="angry"] { background: linear-gradient(135deg, #ff7070, #c0392b); }
+  #moodApp[data-mood="calm"]  { background: linear-gradient(135deg, #b5f5c8, #6ec98a); }
+   
+   
+  /* ── 4. BACKGROUND BLOBS ─────────────────────────────────── */
+  /* Large blurry coloured circles that float behind everything */
+  .blob-wrap {
+    position: absolute;
+    inset: 0;               /* covers the whole parent */
+    overflow: hidden;
+    pointer-events: none;   /* invisible to clicks */
+    z-index: 0;
+  }
+   
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.45;
+    transition: background 1s ease;   /* colour fades smoothly */
+    animation: blobFloat 7s ease-in-out infinite;
+  }
+   
+  /* Position each blob differently */
+  .blob1 { width: 220px; height: 220px; top: -60px;  left: -60px;  animation-delay: 0s;   }
+  .blob2 { width: 180px; height: 180px; bottom: -40px; right: -40px; animation-delay: 2.5s; }
+  .blob3 { width: 140px; height: 140px; top: 50%;    left: 55%;    animation-delay: 1.2s; }
+   
+  /* Blob floating animation */
+  @keyframes blobFloat {
+    0%,  100% { transform: translateY(0)    scale(1);    }
+    50%        { transform: translateY(-18px) scale(1.07); }
+  }
+   
+   
+  /* ── 5. FLOATING PARTICLES ───────────────────────────────── */
+  /* Small bubbles created and removed by JavaScript */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    animation: particleFly 4s ease-in infinite;
+    transition: background 1s ease;
+  }
+   
+  @keyframes particleFly {
+    0%   { opacity: 0;   transform: translateY(0)      scale(0.5); }
+    20%  { opacity: 0.7;                                            }
+    80%  { opacity: 0.4;                                            }
+    100% { opacity: 0;   transform: translateY(-120px)  scale(1.2); }
+  }
+   
+   
+  /* ── 6. GLASS CARD ───────────────────────────────────────── */
+  .card {
+    position: relative;
+    z-index: 1;           /* sits above the blobs */
+    background: rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(18px);           /* frosted glass */
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 24px;
+    padding: 40px 36px 32px;
+    margin: 28px;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.09);
+   
+    /* Slide up on first load */
+    animation: cardIn 0.7s cubic-bezier(.22, 1, .36, 1) both;
+  }
+   
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(28px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+   
+   
+  /* ── 7. BIG EMOJI ────────────────────────────────────────── */
+  #bigEmoji {
+    font-size: 68px;
+    display: inline-block;
+    line-height: 1;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.12));
+    animation: emojiFloat 3s ease-in-out infinite;
+  }
+   
+  @keyframes emojiFloat {
+    0%,  100% { transform: translateY(0)    rotate(-2deg); }
+    50%        { transform: translateY(-10px) rotate(2deg);  }
+  }
+   
+   
+  /* ── 8. HEADINGS & TEXT ──────────────────────────────────── */
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    transition: color 0.6s ease;
+  }
+   
+  /* Mood-specific heading colours */
+  #moodApp[data-mood="happy"] h1 { color: #4a2c00; }
+  #moodApp[data-mood="sad"]   h1 { color: #0b1e35; }
+  #moodApp[data-mood="angry"] h1 { color: #2d0000; }
+  #moodApp[data-mood="calm"]  h1 { color: #0a2e17; }
+   
+  .subtitle {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 28px;
+  }
+   
+   
+  /* ── 9. MOOD BUTTONS ─────────────────────────────────────── */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;      /* wraps on small screens */
+    margin-bottom: 24px;
+  }
+   
+  .mood-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 18px;
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.42);
+    cursor: none;           /* hidden because we use custom cursor */
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    overflow: hidden;       /* needed for the ripple effect */
+    transition: transform 0.22s cubic-bezier(.34, 1.56, .64, 1),
+                box-shadow 0.22s ease,
+                border-color 0.3s ease,
+                background 0.3s ease;
+  }
+   
+  .btn-emoji { font-size: 1.8rem; }
+   
+  .btn-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #333;
+  }
+   
+  /* Hover: pop up */
+  .mood-btn:hover {
+    transform: translateY(-5px) scale(1.06);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+    border-color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.65);
+  }
+   
+  /* Click: press in */
+  .mood-btn:active { transform: scale(0.96); }
+   
+  /* Selected button gets a coloured ring */
+  .mood-btn.active {
+    border-color: rgba(80, 80, 200, 0.5);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 0 0 3px rgba(80, 80, 200, 0.12),
+                0 8px 20px rgba(0, 0, 0, 0.10);
+  }
+   
+  /* Ripple wave that expands when you click a button */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    transform: scale(0);
+    animation: rippleOut 0.55s linear;
+    pointer-events: none;
+  }
+   
+  @keyframes rippleOut {
+    to { transform: scale(4); opacity: 0; }
+  }
+   
+   
+  /* ── 10. RESULT BOX ──────────────────────────────────────── */
+  .result-box {
+    display: none;    /* hidden until a mood is picked */
+    animation: resultIn 0.5s cubic-bezier(.22, 1, .36, 1) both;
+  }
+   
+  .result-box.visible { display: block; }
+   
+  @keyframes resultIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+   
+  .mood-msg {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    transition: color 0.6s ease;
+  }
+   
+  #moodApp[data-mood="happy"] .mood-msg { color: #4a2c00; }
+  #moodApp[data-mood="sad"]   .mood-msg { color: #0b1e35; }
+  #moodApp[data-mood="angry"] .mood-msg { color: #2d0000; }
+  #moodApp[data-mood="calm"]  .mood-msg { color: #0a2e17; }
+   
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 auto 14px;
+    width: 55%;
+  }
+   
+  .quote-text {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #333;
+    opacity: 0.85;
+  }
+   
+   
+  /* ── 11. FOOTER ──────────────────────────────────────────── */
+  .footer-note {
+    margin-top: 22px;
+    font-size: 0.72rem;
+    color: #888;
+  }
+   
+   
+  /* ── 12. RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 480px) {
+    .card     { padding: 30px 20px 24px; margin: 16px; }
+    h1        { font-size: 1.5rem; }
+    #bigEmoji { font-size: 54px; }
+    .mood-btn { padding: 12px 14px; }
+  }

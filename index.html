@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood-Based Web Experience</title>
+
+  <!-- Google Fonts: Fraunces (display) + DM Sans (body) -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Our stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Custom cursor dot (follows the mouse) -->
+  <div id="moodCursor"></div>
+
+  <!-- Main app wrapper — data-mood attribute controls the background -->
+  <div id="moodApp">
+
+    <!-- Animated colour blobs in the background -->
+    <div class="blob-wrap">
+      <div class="blob blob1" id="blob1"></div>
+      <div class="blob blob2" id="blob2"></div>
+      <div class="blob blob3" id="blob3"></div>
+    </div>
+
+    <!-- Floating particles live here (added by JS) -->
+    <div class="blob-wrap" id="particleContainer"></div>
+
+    <!-- Glass card -->
+    <div class="card">
+
+      <!-- Big animated emoji -->
+      <div id="bigEmoji">🌤️</div>
+
+      <!-- Heading -->
+      <h1>How are you feeling today?</h1>
+      <p class="subtitle" id="subtitle">Pick a mood and I'll match your vibe.</p>
+
+      <!-- Four mood buttons -->
+      <div class="btn-row">
+        <button class="mood-btn" data-mood="happy"  onclick="changeMood('happy',event)">
+          <span class="btn-emoji">😊</span>
+          <span class="btn-label">Happy</span>
+        </button>
+        <button class="mood-btn" data-mood="sad"    onclick="changeMood('sad',event)">
+          <span class="btn-emoji">😔</span>
+          <span class="btn-label">Sad</span>
+        </button>
+        <button class="mood-btn" data-mood="angry"  onclick="changeMood('angry',event)">
+          <span class="btn-emoji">😠</span>
+          <span class="btn-label">Angry</span>
+        </button>
+        <button class="mood-btn" data-mood="calm"   onclick="changeMood('calm',event)">
+          <span class="btn-emoji">😌</span>
+          <span class="btn-label">Calm</span>
+        </button>
+      </div>
+
+      <!-- Result area (hidden until a mood is clicked) -->
+      <div class="result-box" id="resultBox">
+        <p class="mood-msg" id="moodMsg"></p>
+        <hr class="divider" />
+        <p class="quote-text" id="quoteText"></p>
+      </div>
+
+      <p class="footer-note">Your mood is remembered on refresh 🔒</p>
+
+    </div><!-- end .card -->
+  </div><!-- end #moodApp -->
+
+  <!-- Script goes LAST so HTML loads before JS runs -->
+  <script src="script.js"></script>
+
+</body>
+</html>
